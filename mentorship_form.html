@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    body { font-family: 'Inter', sans-serif; background-color: transparent; margin: 0; padding: 5px; }
+    .form-container { width: 100%; max-width: 550px; margin: auto; border: 1px solid #ccc; background: #fff; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); position: relative; }
+    .form-header { background: #EAEAEA; color: #F38531; text-align: center; padding: 15px; font-weight: 700; font-size: 16px; text-transform: uppercase; }
+    form { padding: 15px; }
+    
+    .form-row { display: flex; align-items: center; margin-bottom: 12px; }
+    .form-row label:first-child { flex: 1; font-weight: 700; color: #333; font-size: 13px; padding-right: 10px; }
+    
+    input[type="text"], input[type="tel"], input[type="email"], input[type="url"], select, textarea {
+        flex: 1.6; background-color: #D9D9D9; border: 1px solid #999; padding: 10px; border-radius: 4px; font-size: 14px; outline: none; width: 100%; box-sizing: border-box;
+    }
+    
+    .options-group { flex: 1.6; display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; font-weight: 600; }
+    .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; }
+    
+    .vertical { flex-direction: column; align-items: flex-start; }
+    .vertical label { margin-bottom: 8px; }
+    .vertical textarea { width: 100%; }
+    
+    .btn-container { text-align: center; margin-top: 20px; }
+    #btnSubmit { background-color: #F38531; color: #fff; border: none; padding: 12px 50px; font-weight: 700; border-radius: 4px; cursor: pointer; font-size: 15px; width: 100%; max-width: 200px; }
+ 
+    #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+    #thankYouPopup {
+        display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        text-align: center; z-index: 1001; width: 80%; max-width: 350px; border-top: 5px solid #F38531;
+    }
+ 
+    @media (max-width: 480px) {
+        .form-row { flex-direction: column; align-items: flex-start; }
+        .form-row label:first-child { margin-bottom: 5px; }
+        input, select, textarea, .options-group { flex: none; width: 100% !important; }
+        .checkbox-grid { grid-template-columns: 1fr 1fr; }
+    }
+</style>
+</head>
+<body>
+ 
+<div class="form-container">
+    <div class="form-header">APPLY FOR MENTORSHIP</div>
+    <form id="mentorshipForm">
+        <div class="form-row"><label>Name</label><input type="text" name="name" required></div>
+        <div class="form-row"><label>Phone</label><input type="tel" name="phone" required></div>
+        <div class="form-row">
+            <label>Gender</label>
+            <div class="options-group">
+                <label><input type="radio" name="gender" value="Male"> Male</label>
+                <label><input type="radio" name="gender" value="Female"> Female</label>
+            </div>
+        </div>
+        <div class="form-row"><label>Email address</label><input type="email" name="email" required></div>
+        <div class="form-row"><label>Country</label><input type="text" name="country"></div>
+        <div class="form-row"><label>State</label><input type="text" name="state"></div>
+        <div class="form-row"><label>City</label><input type="text" name="city"></div>
+        <div class="form-row">
+            <label>Age</label>
+            <select name="age">
+                <option value="Below 21">Below 21</option>
+                <option value="21-35">21-35</option>
+                <option value="36-45">36-45</option>
+                <option value="46-55">46-55</option>
+                <option value="56-70">56-70</option>
+                <option value="Above 70">Above 70</option>
+            </select>
+        </div>
+        <div class="form-row"><label>Mobile (with code)</label><input type="text" name="mobile_cc"></div>
+        <div class="form-row"><label>Linkedin link</label><input type="url" name="linkedin"></div>
+        <div class="form-row"><label>Qualification</label><input type="text" name="education"></div>
+        <div class="form-row">
+            <label>Language</label>
+            <div class="options-group checkbox-grid">
+                <label><input type="checkbox" name="lang" value="English"> English</label>
+                <label><input type="checkbox" name="lang" value="Telugu"> Telugu</label>
+                <label><input type="checkbox" name="lang" value="Kannada"> Kannada</label>
+                <label><input type="checkbox" name="lang" value="Tamil"> Tamil</label>
+                <label><input type="checkbox" name="lang" value="Hindi"> Hindi</label>
+            </div>
+        </div>
+        <div class="form-row vertical"><label>Why do you want to join?</label><textarea name="reason" rows="3"></textarea></div>
+        <div class="btn-container"><button type="submit" id="btnSubmit">APPLY</button></div>
+    </form>
+</div>
+ 
+<div id="overlay"></div>
+<div id="thankYouPopup">
+    <h3>Success!</h3>
+    <p>Thank you for applying,<br>We will touch you shortly.</p>
+    <button onclick="closePopup()" style="background:#F38531; color:white; border:none; padding:10px 25px; border-radius:4px; cursor:pointer; font-weight:700; margin-top:15px;">OK</button>
+</div>
+ 
+<script>
+    (function(){
+        emailjs.init("gGhbz8fxO1E9LAdWH"); // Public Key
+    })();
+ 
+    document.getElementById('mentorshipForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSubmit');
+        btn.innerHTML = "SENDING...";
+        btn.disabled = true;
+ 
+        // Handling multiple languages
+        const langs = [];
+        document.querySelectorAll('input[name="lang"]:checked').forEach(c => langs.push(c.value));
+        
+        // Preparing template data
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+        data.languages = langs.join(', '); // This maps to {{languages}} in EmailJS
+ 
+        emailjs.send('service_c7n70j7', 'template_da1bfmm', data)
+            .then(function() {
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('thankYouPopup').style.display = 'block';
+                document.getElementById('mentorshipForm').reset();
+                btn.innerHTML = "APPLY";
+                btn.disabled = false;
+            }, function(error) {
+                alert("Submission failed. Error: " + JSON.stringify(error));
+                btn.innerHTML = "APPLY";
+                btn.disabled = false;
+            });
+    });
+ 
+    function closePopup() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('thankYouPopup').style.display = 'none';
+    }
+</script>
+</body>
+</html>
